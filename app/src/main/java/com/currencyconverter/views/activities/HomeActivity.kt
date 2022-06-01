@@ -24,7 +24,6 @@ class HomeActivity : BaseActivity() {
                 when(it.status) {
                     Status.SUCCESS -> {
                         it.data?.apply {
-                            println("TestLogs: success: $this")
                             val jsonObject = JSONObject(this)
                             if (jsonObject.getBoolean("success")) {
                                 val currencies = jsonObject.getJSONObject("currencies")

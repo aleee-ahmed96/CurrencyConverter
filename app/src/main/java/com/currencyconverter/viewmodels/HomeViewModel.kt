@@ -21,10 +21,10 @@ class HomeViewModel(
         viewModelScope.launch {
             remoteRepository.getCurrencyCountriesList()
                 .onStart {
-                    _response.postValue(Resource.loading(null))
+                    _response.postValue(Resource.loading())
                 }
                 .catch {
-                    _response.postValue(Resource.error(it.message ?: "Unknown Error", null))
+                    _response.postValue(Resource.error(it.message ?: "Unknown Error"))
                 }
                 .collect {
                     _response.postValue(it)
