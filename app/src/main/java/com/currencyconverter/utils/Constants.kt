@@ -6,6 +6,9 @@ object Constants {
 
     const val BASE_URL = "https://api.apilayer.com/currency_data/"
 
+    const val API_KEY = "apikey"
+    const val API_KEY_VALUE = "8dJJkjahki64FybFTWLFThKCquvCq22K"
+
     const val GET_LIST = "list"
     const val GET_CHANGE = "change"
     const val GET_CONVERT = "convert"
