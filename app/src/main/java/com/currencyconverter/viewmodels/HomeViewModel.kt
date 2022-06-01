@@ -7,17 +7,15 @@ import androidx.lifecycle.viewModelScope
 import com.currencyconverter.repositories.RemoteRepository
 import com.currencyconverter.utils.Resource
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import okhttp3.ResponseBody
 
 class HomeViewModel(
     private val remoteRepository: RemoteRepository
 ) : ViewModel() {
 
-    private val _response = MutableLiveData<Resource<ResponseBody>>()
-    val response: LiveData<Resource<ResponseBody>> = _response
+    private val _response = MutableLiveData<Resource<String>>()
+    val response: LiveData<Resource<String>> = _response
 
     fun getCurrenciesList() {
         viewModelScope.launch {
@@ -29,7 +27,7 @@ class HomeViewModel(
                     _response.postValue(Resource.error(it.message ?: "Unknown Error", null))
                 }
                 .collect {
-                    _response.postValue(null)
+                    _response.postValue(it)
                 }
         }
     }

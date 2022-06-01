@@ -13,12 +13,11 @@ import com.currencyconverter.utils.Constants.BASE_URL
 import com.currencyconverter.utils.Constants.DATABASE_NAME
 import com.currencyconverter.viewmodels.HomeViewModel
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.loadKoinModules
 import org.koin.dsl.module
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.concurrent.TimeUnit
 
 
@@ -58,7 +57,7 @@ val networkModules = module {
     fun provideRetrofit() : Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(ScalarsConverterFactory.create())
             .client(getHttpClient())
             .build()
     }

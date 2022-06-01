@@ -12,6 +12,7 @@ import com.currencyconverter.utils.Constants.GET_CHANGE
 import com.currencyconverter.utils.Constants.GET_CONVERT
 import com.currencyconverter.utils.Constants.GET_LIST
 import okhttp3.ResponseBody
+import org.json.JSONObject
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -24,7 +25,7 @@ interface RemoteService {
 //******************************************************************************************************************************************************
 
     @GET(GET_LIST)
-    suspend fun getCurrencyList(): Response<ListModel>
+    suspend fun getCurrencyList(): Response<String>
 
 
 
