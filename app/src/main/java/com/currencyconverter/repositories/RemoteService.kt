@@ -28,19 +28,6 @@ interface RemoteService {
     @GET(GET_LIST)
     suspend fun getCurrencyCountriesList(): Response<String>
 
-
-//******************************************************************************************************************************************************
-    /*  ConvertCurrency   */
-//******************************************************************************************************************************************************
-
-    @GET(GET_CONVERT)
-    suspend fun convertCurrency(
-        @Query(FIELD_TO) to: String,
-        @Query(FIELD_FROM) from: String,
-        @Query(FIELD_AMOUNT) amount: String
-    ): Response<String>
-
-
 //******************************************************************************************************************************************************
     /*  ChangeCurrency   */
 //******************************************************************************************************************************************************
@@ -49,8 +36,7 @@ interface RemoteService {
     suspend fun changeCurrency(
         @Query(FIELD_START_DATE) startDate: String,
         @Query(FIELD_END_DATE) endDate: String,
-        @Query(FIELD_SOURCE) source: String,
-        @Query(FIELD_CURRENCIES) currencies: String
+        @Query(FIELD_SOURCE) source: String
     ): Response<String>
 
 

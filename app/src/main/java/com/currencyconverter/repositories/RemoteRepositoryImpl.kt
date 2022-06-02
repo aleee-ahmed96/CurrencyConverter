@@ -1,6 +1,7 @@
 package com.currencyconverter.repositories
 
 import com.currencyconverter.utils.Resource
+import com.currencyconverter.utils.getCurrentDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
@@ -23,31 +24,11 @@ class RemoteRepositoryImpl(
             }
     }
 
-    override suspend fun convertCurrency(
-        to: String,
-        from: String,
-        amount: String
-    ): Flow<Resource<String>>  = flow {
-        remoteService.convertCurrency(to, from, amount)
-            .let {
-                kotlin.runCatching {
-                    if (it.isSuccessful && it.code() == 200) {
-                        it.body()?.let { body -> successResponse(body) } ?: errorResponse()
-                    }
-                    else {
-                        it.errorBody()?.let { e -> errorResponse(e.string()) } ?: errorResponse()
-                    }
-                }.onFailure { errorResponse() }
-            }
-    }
 
     override suspend fun changeCurrency(
-        startDate: String,
-        endDate: String,
-        source: String,
-        currencies: String
+        source: String
     ): Flow<Resource<String>>  = flow {
-        remoteService.changeCurrency(startDate, endDate, source, currencies)
+        remoteService.changeCurrency(getCurrentDate(), getCurrentDate(), source)
             .let {
                 kotlin.runCatching {
                     if (it.isSuccessful && it.code() == 200) {

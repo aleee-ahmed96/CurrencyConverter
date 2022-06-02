@@ -17,6 +17,9 @@ class HomeViewModel(
     private val _currenciesList = MutableLiveData<Resource<String>>()
     val currenciesList: LiveData<Resource<String>> = _currenciesList
 
+    private val _currencyChange = MutableLiveData<Resource<String>>()
+    val currencyChange: LiveData<Resource<String>> = _currencyChange
+
     fun getCurrenciesList() {
         viewModelScope.launch {
             remoteRepository.getCurrenciesList()
@@ -28,6 +31,19 @@ class HomeViewModel(
                 }
                 .collect {
                     _currenciesList.postValue(it)
+                }
+        }
+    }
+
+    fun getCurrencyChange(source: String) {
+        viewModelScope.launch {
+            remoteRepository.changeCurrency(source)
+                .onStart { _currencyChange.postValue(Resource.loading()) }
+                .catch {
+                    _currencyChange.postValue(Resource.error(it.message ?: "Unknown Error"))
+                }
+                .collect {
+                    _currencyChange.postValue(it)
                 }
         }
     }
