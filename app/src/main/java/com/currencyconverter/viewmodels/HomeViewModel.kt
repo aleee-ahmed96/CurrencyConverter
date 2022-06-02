@@ -24,11 +24,11 @@ class HomeViewModel(
     private val _currenciesListLocal = MutableLiveData<Resource<List<CurrenciesListEntity>>>()
     val currenciesListLocal: LiveData<Resource<List<CurrenciesListEntity>>> = _currenciesListLocal
 
-    private val _currencyChangeLocal = MutableLiveData<Resource<String>>()
-    val currencyChangeLocal: LiveData<Resource<String>> = _currencyChangeLocal
+    private val _currencyChangeRemote = MutableLiveData<Resource<String>>()
+    val currencyChangeRemote: LiveData<Resource<String>> = _currencyChangeRemote
 
-    private val _currencyChangeRemote = MutableLiveData<List<CurrenciesChangeEntity>>()
-    val currencyChangeRemote: LiveData<List<CurrenciesChangeEntity>> = _currencyChangeRemote
+    private val _currencyChangeLocal = MutableLiveData<Resource<List<CurrenciesChangeEntity>>>()
+    val currencyChangeLocal: LiveData<Resource<List<CurrenciesChangeEntity>>> = _currencyChangeLocal
 
     fun getCurrenciesList() {
         viewModelScope.launch {
@@ -48,12 +48,12 @@ class HomeViewModel(
     fun getCurrencyChange(source: String) {
         viewModelScope.launch {
             remoteRepository.changeCurrency(source)
-                .onStart { _currencyChangeLocal.postValue(Resource.loading()) }
+                .onStart { _currencyChangeRemote.postValue(Resource.loading()) }
                 .catch {
-                    _currencyChangeLocal.postValue(Resource.error(it.message ?: "Unknown Error"))
+                    _currencyChangeRemote.postValue(Resource.error(it.message ?: "Unknown Error"))
                 }
                 .collect {
-                    _currencyChangeLocal.postValue(it)
+                    _currencyChangeRemote.postValue(it)
                 }
         }
     }
@@ -85,9 +85,10 @@ class HomeViewModel(
     fun getCurrencyChangeFromDB(source: String) {
         viewModelScope.launch {
             localRepository.getCurrencyChangesList(source)
-                .catch { _currencyChangeRemote.postValue(null) }
+                .onStart { _currencyChangeLocal.postValue(Resource.loading()) }
+                .catch { _currencyChangeLocal.postValue(Resource.error("Unknown Error.")) }
                 .collect{
-                    _currencyChangeRemote.postValue(it)
+                    _currencyChangeLocal.postValue(Resource.success(it))
                 }
         }
     }

@@ -2,6 +2,8 @@ package com.currencyconverter.views.activities
 
 import android.os.Bundle
 import android.os.Handler
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.GridLayoutManager
@@ -43,15 +45,24 @@ class HomeActivity : BaseActivity() {
 
     private fun bindViews() {
         binding?.apply {
-            etCurrencyAmount.doOnTextChanged { _, _, _, _ ->
+
+            etCurrencyAmount.doOnTextChanged { text, _, _, _ ->
                 handler?.removeCallbacksAndMessages(null)
                 handler = delay {
-                    if (isInternetConnected()) {
-                        if (spCurrencies.selectedItem != null) getCurrencyChange()
-                        else toast("Please wait, data is loading")
+                    if (spCurrencies.selectedItem != null && text.isNullOrBlank().not()) {
+                        getCurrencyChange()
                     }
-                    else toast("No internet connection")
                 }
+            }
+
+            spCurrencies.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                    if (spCurrencies.selectedItem != null && etCurrencyAmount.text.isNullOrBlank().not()) {
+                        getCurrencyChange()
+                    }
+                }
+
+                override fun onNothingSelected(p0: AdapterView<*>?) = Unit
             }
 
             rvCurrenciesList.layoutManager = GridLayoutManager(this@HomeActivity, 3)
@@ -168,16 +179,56 @@ class HomeActivity : BaseActivity() {
                 homeViewModel.getCurrencyChange(spCurrencies.selectedItem.toString())
             }
             else {
-                homeViewModel.getCurrencyListFromDB()
+                homeViewModel.getCurrencyChangeFromDB(spCurrencies.selectedItem.toString())
             }
         }
         else {
-            homeViewModel.getCurrencyListFromDB()
+            homeViewModel.getCurrencyChangeFromDB(spCurrencies.selectedItem.toString())
         }
     }
 
     private fun observeCurrencyChange() {
-        homeViewModel.currencyChangeLocal.observe(this) { response ->
+
+        homeViewModel.currencyChangeLocal.observe(this) {
+            it?.let {
+                when (it.status) {
+                    Status.SUCCESS -> {
+                        binding?.pbLoading?.hide()
+                        it.data?.let { list ->
+
+                            currenciesData.clear()
+
+                            list.forEach {item->
+
+                                currenciesData.add(
+                                    CurrenciesModel(
+                                        item.currencyName.removePrefix(binding?.spCurrencies?.selectedItem.toString()),
+                                        item.currencyRate *
+                                                (binding?.etCurrencyAmount?.textString()?.toDouble() ?: 1.0)
+                                    )
+                                )
+                            }
+                            currenciesAdapter.updateList(currenciesData)
+
+                        } ?: run {
+                            if (isInternetConnected()) {
+                                homeViewModel.getCurrencyChange(binding?.spCurrencies?.selectedItem.toString())
+                            }
+                            else toast("No internet connection")
+                        }
+                    }
+                    Status.ERROR -> {
+                        binding?.pbLoading?.hide()
+                        it.message?.let { msg -> toast(msg) }
+                    }
+                    Status.LOADING -> {
+                        binding?.pbLoading?.show()
+                    }
+                }
+            }
+        }
+
+        homeViewModel.currencyChangeRemote.observe(this) { response ->
             response?.let {
                 when(it.status) {
                     Status.SUCCESS -> {
@@ -185,9 +236,12 @@ class HomeActivity : BaseActivity() {
                         it.data?.apply {
                             val jsonObject = JSONObject(this)
                             if (jsonObject.getBoolean("success")) {
+
                                 currenciesData.clear()
 
                                 if (jsonObject.has("quotes")) {
+
+                                    sharePreferences.saveChangeApiCallTime()
 
                                     val changeEntityList = arrayListOf<CurrenciesChangeEntity>()
                                     val quotes = jsonObject.getJSONObject("quotes")
@@ -204,10 +258,7 @@ class HomeActivity : BaseActivity() {
                                             )
                                             changeEntityList.add(
                                                 CurrenciesChangeEntity(
-                                                currencyName = item,
-                                                currencyRate = rate
-                                            )
-                                            )
+                                                    currencyName = item, currencyRate = rate))
                                         }
                                     }
 
