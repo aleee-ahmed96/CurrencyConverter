@@ -29,8 +29,6 @@ fun delay(time: Long = 1000L, runnable: Runnable): Handler {
 
 fun Context.toast(message: String) = Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 
-fun Context.toast(@StringRes id: Int) = toast(resources.getString(id))
-
 fun EditText.textString(): String = text.toString()
 
 fun Context.isInternetConnected(): Boolean {
@@ -57,4 +55,8 @@ fun Context.isInternetConnected(): Boolean {
 
 fun getCurrentDate(): String {
     return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+}
+
+fun shouldCallApi(time: Long) : Boolean {
+    return System.currentTimeMillis() > (time + 30 * 60 * 1000)
 }

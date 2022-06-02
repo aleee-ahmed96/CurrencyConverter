@@ -3,6 +3,7 @@ package com.currencyconverter.utils
 object Constants {
 
     const val DATABASE_NAME = "currency_database"
+    const val SHARED_PREFERENCES = "currency_preferences"
 
     const val BASE_URL = "https://api.apilayer.com/currency_data/"
 

@@ -5,19 +5,24 @@ import android.os.Handler
 import android.widget.ArrayAdapter
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.GridLayoutManager
+import com.currencyconverter.database.SharePreferences
 import com.currencyconverter.databinding.ActivityHomeBinding
 import com.currencyconverter.models.CurrenciesModel
 import com.currencyconverter.utils.*
 import com.currencyconverter.viewmodels.HomeViewModel
 import com.currencyconverter.views.adapters.CurrenciesAdapter
 import org.json.JSONObject
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class HomeActivity : BaseActivity() {
 
     private var binding: ActivityHomeBinding? = null
+
     private val homeViewModel by viewModel<HomeViewModel>()
+    private val sharePreferences by inject<SharePreferences>()
+
     private var handler: Handler? = null
     private val currenciesData = arrayListOf<CurrenciesModel>()
     private val currenciesAdapter = CurrenciesAdapter(currenciesData.toMutableList())
@@ -55,8 +60,12 @@ class HomeActivity : BaseActivity() {
 
     private fun getCurrencies() {
 
-        if (isInternetConnected()) homeViewModel.getCurrenciesList()
-        else toast("No internet connection")
+        if (shouldCallApi(sharePreferences.getListApiCallTime())) {
+            if (isInternetConnected()) homeViewModel.getCurrenciesList()
+            else toast("No internet connection")
+        } else {
+
+        }
 
         homeViewModel.currenciesList.observe(this) { response ->
             response?.let {
@@ -74,6 +83,7 @@ class HomeActivity : BaseActivity() {
                                     val currencies = jsonObject.getJSONObject("currencies")
 
                                     val keys = currencies.keys().asSequence().toList()
+
                                     spinnerData.addAll(keys)
 
                                     val adapter = ArrayAdapter(this@HomeActivity,
@@ -84,7 +94,8 @@ class HomeActivity : BaseActivity() {
 
                                 }
 
-                            } else {
+                            }
+                            else {
                                 println("TestLogs: success: failed")
                             }
                         }

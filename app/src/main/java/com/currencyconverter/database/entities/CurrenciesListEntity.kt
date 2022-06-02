@@ -5,10 +5,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Keep
-@Entity(tableName = "currency")
-data class CurrencyEntity(
+@Entity(tableName = "currencies_list")
+data class CurrenciesListEntity(
         @PrimaryKey(autoGenerate = true)
-        val cId: Long = System.currentTimeMillis(),
-        var fileName: String = "Unknown",
-        var fileSize: String = "0kb",
+        val clId: Long = System.currentTimeMillis(),
+        var currency: String = ""
 )

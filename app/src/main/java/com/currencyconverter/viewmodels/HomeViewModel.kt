@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.currencyconverter.repositories.LocalRepository
 import com.currencyconverter.repositories.RemoteRepository
 import com.currencyconverter.utils.Resource
 import kotlinx.coroutines.flow.catch
@@ -11,7 +12,8 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    private val remoteRepository: RemoteRepository
+    private val remoteRepository: RemoteRepository,
+    private val localRepository: LocalRepository,
 ) : ViewModel() {
 
     private val _currenciesList = MutableLiveData<Resource<String>>()
