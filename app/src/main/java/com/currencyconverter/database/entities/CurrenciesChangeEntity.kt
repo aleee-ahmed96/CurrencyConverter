@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "currencies_change")
 data class CurrenciesChangeEntity(
         @PrimaryKey(autoGenerate = true)
-        val ccId: Long = System.currentTimeMillis(),
+        val ccId: Long = 0,
         var currencyName: String = "",
-        var currencyRate: String = "",
+        var currencyRate: Double = 0.0,
 )

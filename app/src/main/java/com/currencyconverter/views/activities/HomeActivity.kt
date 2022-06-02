@@ -6,6 +6,8 @@ import android.widget.ArrayAdapter
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.GridLayoutManager
 import com.currencyconverter.database.SharePreferences
+import com.currencyconverter.database.entities.CurrenciesChangeEntity
+import com.currencyconverter.database.entities.CurrenciesListEntity
 import com.currencyconverter.databinding.ActivityHomeBinding
 import com.currencyconverter.models.CurrenciesModel
 import com.currencyconverter.utils.*
@@ -40,13 +42,13 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun bindViews() {
-        toast(getCurrentDate())
         binding?.apply {
             etCurrencyAmount.doOnTextChanged { _, _, _, _ ->
                 handler?.removeCallbacksAndMessages(null)
                 handler = delay {
                     if (isInternetConnected()) {
-                        homeViewModel.getCurrencyChange(spCurrencies.selectedItem.toString())
+                        if (spCurrencies.selectedItem != null) getCurrencyChange()
+                        else toast("Please wait, data is loading")
                     }
                     else toast("No internet connection")
                 }
@@ -62,27 +64,37 @@ class HomeActivity : BaseActivity() {
 
         if (shouldCallApi(sharePreferences.getListApiCallTime())) {
             if (isInternetConnected()) homeViewModel.getCurrenciesList()
-            else toast("No internet connection")
-        } else {
-
+            else homeViewModel.getCurrencyListFromDB()
+        }
+        else {
+            homeViewModel.getCurrencyListFromDB()
         }
 
-        homeViewModel.currenciesList.observe(this) { response ->
+        homeViewModel.currenciesListRemote.observe(this) { response ->
             response?.let {
                 when(it.status) {
                     Status.SUCCESS -> {
+
                         binding?.pbLoading?.hide()
+
                         it.data?.apply {
+
+                            sharePreferences.saveListApiCallTime()
                             val jsonObject = JSONObject(this)
+
                             if (jsonObject.getBoolean("success")) {
 
                                 if (jsonObject.has("currencies")) {
 
-                                    val spinnerData: MutableList<String> = ArrayList()
+                                    val spinnerData = arrayListOf<String>()
+                                    val dbData = arrayListOf<CurrenciesListEntity>()
 
                                     val currencies = jsonObject.getJSONObject("currencies")
 
                                     val keys = currencies.keys().asSequence().toList()
+
+
+                                    keys.forEach { item -> dbData.add(CurrenciesListEntity(item)) }
 
                                     spinnerData.addAll(keys)
 
@@ -92,12 +104,48 @@ class HomeActivity : BaseActivity() {
                                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                                     binding?.spCurrencies?.adapter = adapter
 
+                                    homeViewModel.addCurrencyListToDB(dbData)
+
                                 }
 
                             }
                             else {
                                 println("TestLogs: success: failed")
                             }
+                        }
+
+                    }
+                    Status.ERROR -> {
+                        binding?.pbLoading?.hide()
+                        it.message?.let { msg -> toast(msg) }
+                    }
+                    Status.LOADING -> {
+                        binding?.pbLoading?.show()
+                    }
+                }
+            }
+        }
+
+        homeViewModel.currenciesListLocal.observe(this) {
+            it?.let {
+                when (it.status) {
+                    Status.SUCCESS -> {
+                        binding?.pbLoading?.hide()
+                        it.data?.let { list ->
+                            val spinnerData: MutableList<String> = ArrayList()
+
+                            list.forEach { item -> spinnerData.add(item.currency) }
+
+                            val adapter = ArrayAdapter(this@HomeActivity,
+                                android.R.layout.simple_spinner_item, spinnerData)
+
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                            binding?.spCurrencies?.adapter = adapter
+
+
+                        } ?: run {
+                            if (isInternetConnected()) homeViewModel.getCurrenciesList()
+                            else toast("No internet connection")
                         }
                     }
                     Status.ERROR -> {
@@ -113,9 +161,23 @@ class HomeActivity : BaseActivity() {
 
     }
 
+    private fun ActivityHomeBinding.getCurrencyChange() {
+
+        if (shouldCallApi(sharePreferences.getChangeApiCallTime())) {
+            if (isInternetConnected()) {
+                homeViewModel.getCurrencyChange(spCurrencies.selectedItem.toString())
+            }
+            else {
+                homeViewModel.getCurrencyListFromDB()
+            }
+        }
+        else {
+            homeViewModel.getCurrencyListFromDB()
+        }
+    }
 
     private fun observeCurrencyChange() {
-        homeViewModel.currencyChange.observe(this) { response ->
+        homeViewModel.currencyChangeLocal.observe(this) { response ->
             response?.let {
                 when(it.status) {
                     Status.SUCCESS -> {
@@ -127,6 +189,7 @@ class HomeActivity : BaseActivity() {
 
                                 if (jsonObject.has("quotes")) {
 
+                                    val changeEntityList = arrayListOf<CurrenciesChangeEntity>()
                                     val quotes = jsonObject.getJSONObject("quotes")
                                     val quoteItems = quotes.keys()
 
@@ -139,12 +202,26 @@ class HomeActivity : BaseActivity() {
                                                     rate * etCurrencyAmount.textString().toDouble()
                                                 )
                                             )
+                                            changeEntityList.add(
+                                                CurrenciesChangeEntity(
+                                                currencyName = item,
+                                                currencyRate = rate
+                                            )
+                                            )
                                         }
                                     }
+
+                                    homeViewModel.addCurrencyChangeToDB(
+                                        binding?.spCurrencies?.selectedItem.toString(),
+                                        changeEntityList
+                                    )
+
                                 }
 
                                 currenciesAdapter.updateList(currenciesData)
-                            } else {
+
+                            }
+                            else {
                                 println("TestLogs: success: failed")
                             }
                         }

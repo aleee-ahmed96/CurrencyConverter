@@ -16,7 +16,7 @@ class SharePreferences(private val sharedPreferences: SharedPreferences) {
     }
 
     fun getListApiCallTime(): Long {
-        return sharedPreferences.getLong(LIST_CALL_TIME, System.currentTimeMillis())
+        return sharedPreferences.getLong(LIST_CALL_TIME, 0)
     }
 
     fun saveChangeApiCallTime() {
@@ -26,7 +26,7 @@ class SharePreferences(private val sharedPreferences: SharedPreferences) {
     }
 
     fun getChangeApiCallTime(): Long {
-        return sharedPreferences.getLong(CHANGE_CALL_TIME, System.currentTimeMillis())
+        return sharedPreferences.getLong(CHANGE_CALL_TIME, 0)
     }
 
 

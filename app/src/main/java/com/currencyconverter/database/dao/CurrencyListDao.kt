@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CurrencyListDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun addCurrency(listEntity: List<CurrenciesListEntity>)
 
-    @Query("select * from currencies_list order by clId desc")
+    @Query("select * from currencies_list")
     fun getAllCurrencies(): Flow<List<CurrenciesListEntity>>
 
     @Query("Delete from currencies_list")

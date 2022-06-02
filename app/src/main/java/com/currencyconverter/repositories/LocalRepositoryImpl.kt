@@ -5,6 +5,7 @@ import com.currencyconverter.database.dao.CurrencyListDao
 import com.currencyconverter.database.entities.CurrenciesChangeEntity
 import com.currencyconverter.database.entities.CurrenciesListEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
@@ -21,9 +22,10 @@ class LocalRepositoryImpl(
     override suspend fun getCurrenciesList(): Flow<List<CurrenciesListEntity>?> {
         return flow {
             currencyListDao.getAllCurrencies().map {
+                println("LocalLogs: map ")
                 if (it.isNullOrEmpty().not()) emit(it)
                 else emit(null)
-            }
+            }.catch { emit(null) }.collect {}
         }
     }
 
@@ -40,7 +42,7 @@ class LocalRepositoryImpl(
             currencyChangeDao.getAllCurrencyChanges(source).map {
                 if (it.isNullOrEmpty().not()) emit(it)
                 else emit(null)
-            }
+            }.catch { emit(null) }.collect {}
         }
     }
 

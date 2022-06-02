@@ -15,7 +15,7 @@ interface CurrencyChangeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addCurrencyChanges(model: List<CurrenciesChangeEntity>)
 
-    @Query("select * from currencies_change where currencyName like '%' =:source order by ccId desc")
+    @Query("select * from currencies_change where currencyName like '%' =:source order by ccId asc")
     fun getAllCurrencyChanges(source: String): Flow<List<CurrenciesChangeEntity>>
 
     @Query("Delete from currencies_change where currencyName like '%' =:source")

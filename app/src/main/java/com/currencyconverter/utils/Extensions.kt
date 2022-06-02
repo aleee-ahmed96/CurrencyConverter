@@ -58,5 +58,5 @@ fun getCurrentDate(): String {
 }
 
 fun shouldCallApi(time: Long) : Boolean {
-    return System.currentTimeMillis() > (time + 30 * 60 * 1000)
+    return System.currentTimeMillis() > (time + (30 * 60 * 1000))
 }
