@@ -9,7 +9,7 @@ class RemoteRepositoryImpl(
     private val remoteService: RemoteService
 ) : RemoteRepository {
 
-    override suspend fun getCurrencyCountriesList(): Flow<Resource<String>> = flow {
+    override suspend fun getCurrenciesList(): Flow<Resource<String>> = flow {
         remoteService.getCurrencyCountriesList()
             .let {
                 kotlin.runCatching {

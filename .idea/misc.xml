@@ -5,6 +5,7 @@
       <map>
         <entry key="app/src/main/res/drawable/bg_currency_amount.xml" value="0.2445" />
         <entry key="app/src/main/res/drawable/bg_spinner.xml" value="0.2445" />
+        <entry key="app/src/main/res/layout/activity_home.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.38958333333333334" />
         <entry key="app/src/main/res/layout/layout_currencies.xml" value="0.40260416666666665" />
       </map>

@@ -14,23 +14,24 @@ class HomeViewModel(
     private val remoteRepository: RemoteRepository
 ) : ViewModel() {
 
-    private val _response = MutableLiveData<Resource<String>>()
-    val response: LiveData<Resource<String>> = _response
+    private val _currenciesList = MutableLiveData<Resource<String>>()
+    val currenciesList: LiveData<Resource<String>> = _currenciesList
 
     fun getCurrenciesList() {
         viewModelScope.launch {
-            remoteRepository.getCurrencyCountriesList()
+            remoteRepository.getCurrenciesList()
                 .onStart {
-                    _response.postValue(Resource.loading())
+                    _currenciesList.postValue(Resource.loading())
                 }
                 .catch {
-                    _response.postValue(Resource.error(it.message ?: "Unknown Error"))
+                    _currenciesList.postValue(Resource.error(it.message ?: "Unknown Error"))
                 }
                 .collect {
-                    _response.postValue(it)
+                    _currenciesList.postValue(it)
                 }
         }
     }
+
 
 
 
