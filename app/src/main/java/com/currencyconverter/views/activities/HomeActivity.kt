@@ -5,9 +5,9 @@ import android.os.Handler
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.activity.viewModels
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.GridLayoutManager
-import com.currencyconverter.database.SharePreferences
 import com.currencyconverter.database.entities.CurrenciesChangeEntity
 import com.currencyconverter.database.entities.CurrenciesListEntity
 import com.currencyconverter.databinding.ActivityHomeBinding
@@ -15,17 +15,15 @@ import com.currencyconverter.models.CurrenciesModel
 import com.currencyconverter.utils.*
 import com.currencyconverter.viewmodels.HomeViewModel
 import com.currencyconverter.views.adapters.CurrenciesAdapter
+import dagger.hilt.android.AndroidEntryPoint
 import org.json.JSONObject
-import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
-
+@AndroidEntryPoint
 class HomeActivity : BaseActivity() {
 
     private var binding: ActivityHomeBinding? = null
 
-    private val homeViewModel by viewModel<HomeViewModel>()
-    private val sharePreferences by inject<SharePreferences>()
+    private val homeViewModel: HomeViewModel by viewModels()
 
     private var handler: Handler? = null
     private val currenciesData = arrayListOf<CurrenciesModel>()
@@ -73,7 +71,7 @@ class HomeActivity : BaseActivity() {
 
     private fun getCurrencies() {
 
-        if (shouldCallApi(sharePreferences.getListApiCallTime())) {
+        if (shouldCallApi(homeViewModel.getListApiTime())) {
             if (isInternetConnected()) homeViewModel.getCurrenciesList()
             else homeViewModel.getCurrencyListFromDB()
         }
@@ -90,7 +88,7 @@ class HomeActivity : BaseActivity() {
 
                         it.data?.apply {
 
-                            sharePreferences.saveListApiCallTime()
+                            homeViewModel.setListApiTime()
                             val jsonObject = JSONObject(this)
 
                             if (jsonObject.getBoolean("success")) {
@@ -174,7 +172,7 @@ class HomeActivity : BaseActivity() {
 
     private fun ActivityHomeBinding.getCurrencyChange() {
 
-        if (shouldCallApi(sharePreferences.getChangeApiCallTime())) {
+        if (shouldCallApi(homeViewModel.getChangeApiTime())) {
             if (isInternetConnected()) {
                 homeViewModel.getCurrencyChange(spCurrencies.selectedItem.toString())
             }
@@ -241,7 +239,7 @@ class HomeActivity : BaseActivity() {
 
                                 if (jsonObject.has("quotes")) {
 
-                                    sharePreferences.saveChangeApiCallTime()
+                                    homeViewModel.setChangeApiTime()
 
                                     val changeEntityList = arrayListOf<CurrenciesChangeEntity>()
                                     val quotes = jsonObject.getJSONObject("quotes")

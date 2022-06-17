@@ -8,7 +8,7 @@ object Constants {
     const val BASE_URL = "https://api.apilayer.com/currency_data/"
 
     const val API_KEY = "apikey"
-    const val API_KEY_VALUE = "8dJJkjahki64FybFTWLFThKCquvCq22K"
+    const val API_KEY_VALUE = "9kzUmUpkP8VNmTXTc1TigxE56H27HOMm"
 
     const val GET_LIST = "list"
     const val GET_CHANGE = "change"

@@ -5,8 +5,9 @@ import com.currencyconverter.utils.getCurrentDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
-class RemoteRepositoryImpl(
+class RemoteRepositoryImpl @Inject constructor(
     private val remoteService: RemoteService
 ) : RemoteRepository {
 
