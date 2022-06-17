@@ -6,16 +6,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.currencyconverter.database.entities.CurrenciesChangeEntity
 import com.currencyconverter.database.entities.CurrenciesListEntity
+import com.currencyconverter.repositories.AppRepository
 import com.currencyconverter.repositories.LocalRepository
 import com.currencyconverter.repositories.RemoteRepository
 import com.currencyconverter.utils.Resource
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class HomeViewModel(
+@HiltViewModel
+class HomeViewModel @Inject constructor(
     private val remoteRepository: RemoteRepository,
     private val localRepository: LocalRepository,
+    private val appRepository: AppRepository
 ) : ViewModel() {
 
     private val _currenciesListRemote = MutableLiveData<Resource<String>>()
@@ -58,7 +63,6 @@ class HomeViewModel(
         }
     }
 
-
     fun addCurrencyListToDB(listEntity: List<CurrenciesListEntity>) {
         viewModelScope.launch {
             localRepository.addCurrencyList(listEntity)
@@ -93,7 +97,13 @@ class HomeViewModel(
         }
     }
 
+    fun setListApiTime() = appRepository.setListApiTime()
 
+    fun getListApiTime() = appRepository.getListApiTime()
+
+    fun setChangeApiTime() = appRepository.setChangeApiTime()
+
+    fun getChangeApiTime() = appRepository.getChangeApiTime()
 
 
 }

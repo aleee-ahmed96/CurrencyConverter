@@ -4,6 +4,11 @@ import com.currencyconverter.database.entities.CurrenciesChangeEntity
 import com.currencyconverter.database.entities.CurrenciesListEntity
 import kotlinx.coroutines.flow.Flow
 
+
+/*
+* Used for ROOM Db functions
+* */
+
 interface LocalRepository {
 
     suspend fun addCurrencyList(listEntity: List<CurrenciesListEntity>)

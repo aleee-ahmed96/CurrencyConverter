@@ -4,23 +4,67 @@ import android.content.Context
 import androidx.room.Room
 import com.currencyconverter.database.CurrencyDatabase
 import com.currencyconverter.database.SharePreferences
-import com.currencyconverter.database.dao.CurrencyChangeDao
-import com.currencyconverter.database.dao.CurrencyListDao
 import com.currencyconverter.repositories.*
 import com.currencyconverter.utils.Constants.API_KEY
 import com.currencyconverter.utils.Constants.API_KEY_VALUE
 import com.currencyconverter.utils.Constants.BASE_URL
 import com.currencyconverter.utils.Constants.DATABASE_NAME
 import com.currencyconverter.utils.Constants.SHARED_PREFERENCES
-import com.currencyconverter.viewmodels.HomeViewModel
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.core.context.loadKoinModules
-import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
 
+
+@Module
+@InstallIn(SingletonComponent::class)
+class NetworkModule {
+
+    @Provides
+    @Singleton
+    fun provideHttpClient(): OkHttpClient {
+        val okHttpClientBuilder = OkHttpClient.Builder()
+            .connectTimeout(60 , TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .addInterceptor {
+                it.proceed(it
+                    .request()
+                    .newBuilder()
+                    .addHeader(API_KEY, API_KEY_VALUE)
+                    .build()
+                )
+            }
+        okHttpClientBuilder.build()
+        return okHttpClientBuilder.build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(okHttpClient: OkHttpClient) : Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRemoteService(retrofit: Retrofit): RemoteService {
+        return retrofit.create(RemoteService::class.java)
+    }
+
+
+
+}
+
+/*
 
 fun injectModules() = loadModules
 
@@ -35,6 +79,7 @@ private val loadModules  by lazy {
         )
     )
 }
+
 
 val networkModules = module {
 
@@ -75,25 +120,16 @@ val networkModules = module {
 
 val repositoryModules = module {
 
-    fun provideLocalRepository(
-        currencyListDao: CurrencyListDao,
-        currencyChangeDao: CurrencyChangeDao,
-    ) : LocalRepository {
-        return LocalRepositoryImpl(currencyListDao, currencyChangeDao)
-    }
+    single { LocalRepositoryImpl(get(), get()) } bind LocalRepository::class
 
-    fun provideRemoteRepository(remoteService: RemoteService): RemoteRepository {
-        return RemoteRepositoryImpl(remoteService)
-    }
-
-    single { provideLocalRepository(get(), get()) }
-    single { provideRemoteRepository(get()) }
+    single { RemoteRepositoryImpl(get()) } bind RemoteRepository::class
 }
 
 
 val viewModelModules = module {
     viewModel { HomeViewModel(get(), get()) }
 }
+
 
 val databaseModules = module {
 
@@ -118,3 +154,4 @@ val databaseModules = module {
     single { get<CurrencyDatabase>().currencyChangeDAO() }
 }
 
+*/
